@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <title>移动端图片查看</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../Font-Awesome-3.2.1/css/font-awesome.min.css">
+    <script type="text/javascript" src="../dependencies/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="../src/pinchzoom.js"></script>
+    <script type="text/javascript" src="../layer_mobile/layer.js"></script>
+    <style type="text/css">
+        div.pinch-zoom,
+        div.pinch-zoom img{
+            -webkit-user-drag: none;
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+            background-color: rgba(0,0,0,1);
+
+        }
+        div.pinch-zoom{
+            display: flex;
+        }
+/*按钮样式*/
+        .annvBox{
+            width: 100%;
+            position: absolute;
+            z-index:1;
+            bottom: -30px;
+            color: #ffffff;
+        }
+        .annvBox ul{
+            max-width: 320px;
+            margin:0 auto;
+            text-align: center;
+        }
+        .annvBox li{
+            float: left;
+            list-style: none;
+            width:20%;
+            height: 30px;
+            font-size: 13px;
+            line-height: 20px;
+        }
+/*layui样式更改*/
+        .layui-m-layer{
+            min-width:200px;
+        }
+        .layui-m-layercont{
+            padding:0;
+        }
+        .layui-m-layer1 .layui-m-layerchild{
+            width: 100%;
+        }
+        .layui-m-layermain{
+            background-color: rgba(0,0,0,1);
+        }
+/*自定义样式*/
+        .box{
+            width: 100%;
+            height: 100%;
+            min-height: 200px;
+            position: relative;
+            color: #000;
+            text-align: center;
+
+        }
+
+        .closeOne{
+            float: right;
+            margin-top:4px;
+            margin-right:4px;
+            font-size: 0.8rem;
+        }
+        .imgOne{
+            width: 50px;
+            height: 50px;
+            margin:2px;
+        }
+        .imgBox{
+            width: 100%;
+            height: 100%;
+            float: left;
+        }
+
+
+    </style>
+    <script>
+        (function(){
+            var oHtml=document.getElementsByTagName('html')[0];
+            var fs=window.innerWidth/7.5;
+            oHtml.style.fontSize=fs+'px';
+        })()
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $('div.pinch-zoom').each(function () {
+                new RTP.PinchZoom($(this), {});
+            });
+        })
+
+    </script>
+    <script>
+        var photoVal =  [
+            {
+                title : "frog.jpg",
+                src   : "frog.jpg"
+            },
+            {
+                title : "1.jpg",
+                src   : "1.jpg"
+            },
+            {
+                title : "3.jpg",
+                src   : "3.jpg"
+            }
+        ];
+    </script>
+</head>
+<body>
+<div onclick="listBox()" style="color: red;font-size: 0.26rem">查看</div>
+<script>
+    var deg=0;
+    //    图片列表函数
+    function listBox()
+    {
+        if(photoVal.length>0){
+            var imglist='';
+            for(var i=0;i<photoVal.length;i++) {
+                imglist += '<img index_num="'+i+'" src="' + photoVal[i].src + '" onclick="second(this,'+i+')" class="imgOne">';
+            }
+            var layer_list = layer.open({
+                shadeClose: false,
+                content:    '' +
+                '<div class="box">' +
+                '<div class="closeOne" onclick="layer.closeAll()">×</div>' +
+                '<div class="imgBox">'+imglist+'</div>' +
+                '</div>'
+            });
+        }else {
+            layer.open({
+                content: '附件为空'
+                ,skin: 'msg'
+                ,time: 1 //1秒后自动关闭
+            });
+        }
+
+    }
+    //   点击图片弹层
+    function second( me) {
+    var _this      = $(me);
+    var index_nums = _this.attr('index_num');
+    var img_src    = _this.attr('src');
+    layer.open({
+        type:1,
+        content: '' +
+        '<div class="box">' +
+        '     <div class="pinch-zoom ">'+
+        '         <img index_num="'+index_nums+'" class="big_img" src="'+img_src+'" style="transform:rotate(0deg)">'+
+        '    </div>' +
+        '     <div class="annvBox">'+
+        '         <ul>' +
+        '             <li onclick="up(this)">' +
+        '                 <span class=" icon-reply"></span>' +
+        '                 <span>上一页</span>' +
+        '             </li>'+
+        '             <li onclick="rotate(this)">'+
+        '                 <span class=" icon-undo"></span>' +
+        '                 <span> 旋转 </span>'+
+        '             </li>'+
+        '             <li>'+
+        '                 <span class="icon-save"></span>'+
+        '                 <span> 保存 </span>'+
+        '             </li>'+
+        '             <li onclick="del(this)">'+
+        '                 <span class="icon-trash"></span>' +
+        '                 <span> 删除 </span>'+
+        '             </li>'+
+        '             <li onclick="down(this)">' +
+        '                 <span class="icon-share-alt"></span>'+
+        '                 <span>下一页</span>' +
+        '             </li>'+
+        '         </ul>'+
+        '     </div>'+
+        '</div>'
+    });
+    (function () {
+        $('div.pinch-zoom').each(function () {
+            new RTP.PinchZoom($(this), {});
+        });
+    })()
+
+    }
+
+
+
+    //旋转函数
+    function rotate(me) {
+        var $this=$(me);
+        var img=$this.parent().parent().parent()[0].children[0].children[0].children[0];
+        deg+=90;
+        if(deg==360){
+            deg=0
+        }
+        var str = 'transform:rotate('+deg+'deg)';
+        $(img).attr('style',str)
+    }
+    //上一页函数
+    function up(me) {
+        var $this=$(me);
+        var num  = $('.big_img').attr('index_num');
+        var _src = '';
+        if(num>0)
+        {
+           --num;
+        }
+        else if(num==0)
+        {
+           num = photoVal.length-1;
+        }
+        _src = $('img[index_num='+num+']').attr('src');
+        $('.big_img').attr('src',_src).attr('index_num',num);
+        var img=$this.parent().parent().parent()[0].children[0].children[0].children[0];
+        deg=0;
+        var str = 'transform:rotate('+deg+'deg)';
+        $(img).attr('style',str)
+        window.RTP.myPinchZoom.temp=true;
+        window.RTP.myPinchZoom.zoomFactor=1;
+        window.RTP.myPinchZoom.lastScale = 1;
+        window.RTP.myPinchZoom.offset = {
+            x: 0,
+            y: 0
+        };
+    }
+    //下一页函数
+    function down(me) {
+        var $this=$(me);
+        var num =$('.big_img').attr('index_num');
+        var _src = '';
+        if(num<photoVal.length-1)
+        {
+            ++num;
+        }
+        else if(num == photoVal.length-1){
+            num=0;
+        }
+        _src = $('img[index_num='+num+']').attr('src');
+        $('.big_img').attr('src',_src).attr('index_num',num);
+        var img=$this.parent().parent().parent()[0].children[0].children[0].children[0];
+        deg=0;
+        var str = 'transform:rotate('+deg+'deg)';
+        $(img).attr('style',str)
+        window.RTP.myPinchZoom.temp=true;
+        window.RTP.myPinchZoom.zoomFactor=1;
+        window.RTP.myPinchZoom.lastScale = 1;
+        window.RTP.myPinchZoom.offset = {
+            x: 0,
+            y: 0
+        };
+
+    }
+    //删除函数
+    function del(me) {
+        var num  = $('.big_img').attr('index_num');
+        photoVal.splice(num, 1)
+        var $imgBox=$('.imgBox')
+        if(photoVal.length>0) {
+            var imglist = '';
+            for (var i = 0; i < photoVal.length; i++) {
+                imglist += '<img index_num="' + i + '" src="' + photoVal[i].src + '" onclick="second(this,' + i + ')" class="imgOne">';
+            }
+            $imgBox.html(imglist)
+        }else {
+            layer.closeAll()
+        }
+            up(me)
+    }
+
+</script>
+</body>
+</html>
